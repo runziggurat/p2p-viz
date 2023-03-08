@@ -21,6 +21,7 @@ When asked to load a state file, use `p2p-viz/dist/client/data/state.json`.
 - the C key cycles the color mode:  degree, betweenness, closeness
 - the F key toggles the FPS display
 - the G key toggle the gradient display
+- the H key toggle the histogram display
 - the N key toggles the connections, if a node or subnode is selected.
 
 

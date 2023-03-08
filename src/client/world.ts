@@ -435,7 +435,6 @@ export class CWorld {
             this.connectionData.set(node.position, n+4);
             let delta: vec3 = vec3.create();
             let connPosition: vec3 = connection.getConnectionPosition();
-            // console.log('conn position ', connPosition);
             vec3.sub(delta, connPosition, node.position);
             this.connectionData.set(delta, n+8);
             n += 12;

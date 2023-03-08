@@ -64,7 +64,6 @@ export class CApp {
     }
 
     async init(state: IState) {
-        console.log('init: state ', state);
         this.camera = new PCamera(0, 0, INITIAL_CAMERA_Z, this.canvas);
         this.initialize();
         this.initializeWebGl(this.gl);

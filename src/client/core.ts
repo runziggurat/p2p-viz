@@ -20,7 +20,6 @@ export enum EColorMode {
     Last
 }
 
-
 export enum ENodeType {
     Single = 0,
     Super,
@@ -63,7 +62,6 @@ export interface IHistogram {
     counts: number []
     max_count: number
 }
-
 
 export interface INode {
     addr: string

@@ -123,23 +123,14 @@ export async function loadDefaultState() {
     rawFile.open("GET", 'data/state.json', true);
     rawFile.onreadystatechange = function() {
         if (rawFile.readyState == 4 && rawFile.status == 200) {
-            //callback(rawFile.responseText);
             handleStateText(rawFile.responseText);
         }
     }
     rawFile.send(null);
 }
 
-
-//     fileHandle.getFile().then( async (file) => {
-//         const contents = await file.text();
-//         handleStateText(contents);
-//     });
-// }
-
 function handleStateText(text: string) {
     let istate : IState = JSON.parse(text);
-    const N = 300;
     let nodes = new Array();
     let links = new Array();
     let i = 0;
