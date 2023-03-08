@@ -3,7 +3,6 @@ import { EShader, IShader } from './core'
 
 export var glShaders : WebGLProgram []
 
-
 export function createProgram(shader: IShader, gl: WebGL2RenderingContext) : WebGLProgram {
     const vertexShader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vertexShader, shader.vertex);
@@ -37,7 +36,6 @@ export function initShadersGl(gl: WebGL2RenderingContext) {
       glShaders[i] = createProgram(glslSrc[i], gl);
     }
 }
-
 
 const glslIcosa : IShader = {
     vertex: `#version 300 es
@@ -100,7 +98,6 @@ const glslIcosa : IShader = {
   }
   `
   }
-
 
   const glslWorldMap : IShader = {
     vertex: `#version 300 es
@@ -180,10 +177,6 @@ const glslIcosa : IShader = {
   }
   `
   }
-
-
-
-
 
 let glslSrc : IShader [] = [
     glslIcosa,
