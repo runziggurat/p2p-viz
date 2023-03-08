@@ -30,7 +30,6 @@ async function loadGeoState() {
     document.getElementById("gradient").style.visibility = 'visible';
     window.addEventListener('resize', onWindowResize, false);
     app = new CApp(document.querySelector("#bancan"), fileHandle)
-    // window['showmeapp'] = app;
 }
 
 async function loadDefaultState() {
@@ -40,7 +39,6 @@ async function loadDefaultState() {
     document.getElementById("gradient").style.visibility = 'visible';
     window.addEventListener('resize', onWindowResize, false);
     app = new CApp(document.querySelector("#bancan"), null)
-    // window['showmeapp'] = app;
 }
 
 
