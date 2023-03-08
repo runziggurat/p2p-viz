@@ -1,5 +1,4 @@
 
-
 const CUBE_SCALE: number = 1.4;
 const CUBE_POLYS: number = 12;
 const positions: number [] = [
@@ -20,7 +19,6 @@ const positions: number [] = [
     // bottom right back: v 7
     1, -1, -1,
 ];
-
 
 const normals = [
     // front
@@ -43,7 +41,6 @@ const normals = [
     -1, 0, 0
 ];
 
-
 const indices = [
     // front
     0, 1, 2,
@@ -63,9 +60,7 @@ const indices = [
     // right
     1, 5, 3,
     5, 7, 3
-
 ]
-
 
 export function cubeGeometry(gl: WebGL2RenderingContext) : WebGLBuffer {
     // 6 sides, 2 polys per side = 12 polys
@@ -93,4 +88,3 @@ export function cubeGeometry(gl: WebGL2RenderingContext) : WebGLBuffer {
     gl.bufferData(gl.ARRAY_BUFFER, cubeData, gl.STATIC_DRAW);
     return cubeBuffer;
 }
-

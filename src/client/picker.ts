@@ -83,5 +83,3 @@ export class CPicker {
         gl.readPixels(offsetX, offsetY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.pixelBuffer);
     }
 }
-
-

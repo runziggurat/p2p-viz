@@ -11,5 +11,4 @@ export class CGroup {
         this.transformBuffer = null;
         this.transformData = null;
     }
-
 }

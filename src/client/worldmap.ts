@@ -69,4 +69,3 @@ export function initWorldMap(gl: WebGL2RenderingContext) : WebGLBuffer {
     return worldMapBuffer;
 
 }
-

@@ -25,7 +25,6 @@ export class CApp {
     private lastUpdateTime: number;
     public mouseIsOut: boolean;
 
-
     public constructor(canvas: HTMLCanvasElement, handle: FileSystemFileHandle) {
         this.canvas = canvas
         this.canvas.width = window.innerWidth

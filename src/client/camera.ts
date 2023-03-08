@@ -43,4 +43,4 @@ export class PCamera {
         mat4.invert(this.matView, matWorld)
         mat4.multiply(this.matViewProjection, this.matProjection, this.matView)
     }
-}   
+}

@@ -32,4 +32,3 @@ export function histogramGeometry(gl: WebGL2RenderingContext) : WebGLBuffer {
     gl.bufferData(gl.ARRAY_BUFFER, histogramData, gl.STATIC_DRAW);
     return histogramBuffer;
 }
-

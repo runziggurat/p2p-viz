@@ -27,4 +27,3 @@ export function gradientGeometry(gl: WebGL2RenderingContext) : WebGLBuffer {
     gl.bufferData(gl.ARRAY_BUFFER, gradientData, gl.STATIC_DRAW);
     return gradientBuffer;
 }
-

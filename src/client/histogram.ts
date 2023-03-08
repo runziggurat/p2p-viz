@@ -1,6 +1,5 @@
 import { IHistogram } from "./core";
 
-
 const HISTOGRAM_WIDTH: number = 512;
 
 function createHistogramTexture(gl: WebGL2RenderingContext, summary: IHistogram) : WebGLTexture {
@@ -55,7 +54,6 @@ function createHistogramTexture(gl: WebGL2RenderingContext, summary: IHistogram)
     return texture;
 }
 
-
 export function getHistogramTexture(gl: WebGL2RenderingContext, histograms: IHistogram [], label: string) : WebGLTexture {
     for (let histogram of histograms) {
         if (histogram.label == label) {
@@ -64,4 +62,3 @@ export function getHistogramTexture(gl: WebGL2RenderingContext, histograms: IHis
     }
     return null;
 }
-

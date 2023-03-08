@@ -12,4 +12,3 @@ export function lineGeometry(gl: WebGL2RenderingContext) : WebGLBuffer {
     gl.bufferData(gl.ARRAY_BUFFER, lineData, gl.STATIC_DRAW);
     return lineBuffer;
 }
-
