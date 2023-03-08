@@ -16,12 +16,10 @@ import { glShaders } from './shaders';
 import { createRandomTexture, loadTexture } from './util';
 import { getHistogramTexture } from './histogram'
 
-
 const NODE_TRANSFORM_SIZE: number = 28;
 const CONNECTION_TRANSFORM_SIZE: number = 12;
 const MAX_SUPERNODE_SCALE: number = 2.0;
 const MIN_SUPERNODE_SCALE: number = 0.5;
-
 
 export class CWorld {
     public istate: IState;
@@ -121,9 +119,7 @@ export class CWorld {
     public gradientNode: Text;
     public initialized: boolean;
 
-
     private initTextNodes() {
-
         // Create text nodes to save some time for the browser.
         this.timeNode = document.createTextNode("");
         this.fpsNode = document.createTextNode("");
@@ -201,7 +197,6 @@ export class CWorld {
         this.pickerSubGroup = new CGroup();
         this.selectedSuperNode = null;
         this.maxSubnodes = 0;
-
     };
 
     private updateNodeColors() {
@@ -277,7 +272,6 @@ export class CWorld {
         this.updatePickerData();
     }
 
-    
     private updateSuperStatus(id) {
         if (id == -1) {
             if (this.selectedSuperNode) {
@@ -634,7 +628,6 @@ export class CWorld {
         gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 16, 8);
     }
 
-
     initConnectionsGl() {
         let gl = this.gl;
         let positionLoc = gl.getAttribLocation(glShaders[EShader.Connection], 'a_position');
@@ -856,7 +849,6 @@ export class CWorld {
         gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
 
-
     renderConnections() {
         let gl = this.gl
         gl.useProgram(glShaders[EShader.Connection]);
@@ -922,4 +914,3 @@ export class CWorld {
         gl.drawArraysInstanced(gl.TRIANGLES, 0, 36, this.superNodes.length);
     }
 }
-

@@ -71,7 +71,6 @@ const glslIcosa : IShader = {
   `
   }
 
-
   const glslPicker : IShader = {
     vertex: `#version 300 es
   uniform mat4 u_viewProjection;

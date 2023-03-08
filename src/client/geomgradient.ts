@@ -1,5 +1,3 @@
-
-
 const HEIGHT = 0.04;
 const LEFT = -0.4
 const RIGHT = 0.4;

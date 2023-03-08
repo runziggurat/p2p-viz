@@ -1,5 +1,3 @@
-
-
 // centered on screen, 
 // width = 50% of screen width
 // height = 40% of screen height
