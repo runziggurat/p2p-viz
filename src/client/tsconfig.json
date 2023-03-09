@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "ES2017",
+        "module": "esnext",
+        "outDir": "../../dist/client",
+        "baseUrl": ".",
+        "paths": {
+            "/build/three.module.js": ["../../node_modules/three/src/Three"],
+            "/jsm/*": ["../../node_modules/three/examples/jsm/*"],
+        },
+        "moduleResolution": "node",
+        "skipLibCheck": true
+    },
+    "include": [
+        "**/*.ts"
+    ]
+}
