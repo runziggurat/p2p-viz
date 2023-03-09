@@ -44,7 +44,7 @@ You will now see the nodes displayed over a world map.  The nodes are displayed 
 - the C key cycles the color mode:  degree, betweenness, closeness
 - the F key toggles the FPS display
 - the G key toggle the gradient display.  This displays the color mapping from minimum to maximum, for the particular centrality selected.  The actual min and max values, and the name of the centrality, are drawn below
-- the H key toggles the histogram display, showing the relative distribution of centrality values from min to max.  The the line representing the  **bucket** or **slot** with the maximum count reaches the top of the graph.
+- the H key toggles the histogram display, showing the relative distribution of centrality values from min to max.  The particular line representing the  **bucket** or **slot** with the maximum count reaches the top of the graph.
 - the N key toggles the view connections mode, which are displayed if a node or subnode is selected.
 
 
