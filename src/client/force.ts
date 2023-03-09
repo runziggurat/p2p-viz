@@ -139,8 +139,9 @@ function handleStateText(text: string) {
     }
     for (let node of istate.nodes) {
         let id = 'id' + i.toString();
-        let name = 'name' + i.toString();
-        let addr = node.addr;
+        let name = 'N' + i.toString();
+        let ip = node.addr.substring(0, node.addr.indexOf(':'));
+
         let city = node.geolocation.city;
 
         let b = (node.betweenness - minBetweenness) / (maxBetweenness - minBetweenness);
@@ -152,7 +153,7 @@ function handleStateText(text: string) {
         let d =  (node.connections.length - minConnections) / (maxConnections - minConnections);
         let degreeColor = colorFromNormalizedValue(d);
 
-        nodes.push({id, name, addr, city, degreeColor, betweenColor, closeColor});
+        nodes.push({id, name, ip, city, degreeColor, betweenColor, closeColor});
         for (let connection of node.connections) {
             let cid = 'id' + connection.toString();
             let link = {
