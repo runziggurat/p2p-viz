@@ -2,3 +2,5 @@ node_modules
 *.DS_Store
 target
 dist/client/*.js
+dist/client/*.txt
+dist/server
