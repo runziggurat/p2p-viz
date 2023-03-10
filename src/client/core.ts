@@ -63,23 +63,26 @@ export interface IHistogram {
     max_count: number
 }
 
+export interface IGeolocation {
+    country: string
+    city: string
+    coordinates: {
+        latitude: number
+        longitude: number
+    }
+    timezone: string
+    isp: string
+}
+
 export interface INode {
     addr: string
     betweenness: number
     closeness: number
-    cell_position: number
-    cell_height: number
+    num_subnodes: number
+    subnode_index: number
     connections: number []
-    geolocation: {
-        country: string
-        city: string
-        coordinates: {
-            latitude: number
-            longitude: number    
-        }
-        timezone: string
-        isp: string
-    }
+    geolocation: IGeolocation
+    geostr: string
 }
 
 export interface IState {

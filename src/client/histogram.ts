@@ -35,7 +35,6 @@ function createHistogramTexture(gl: WebGL2RenderingContext, summary: IHistogram)
             n += 4
         }
     }
-    console.log('  n is ', n);
     const level = 0;
     const internalFormat = gl.RGBA;
     const border = 0;

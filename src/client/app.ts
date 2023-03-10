@@ -24,6 +24,8 @@ export class CApp {
     private zoomLogarithm: number;
     private lastUpdateTime: number;
     public mouseIsOut: boolean;
+    public zoomInTicks: number;
+    public zoomOutTicks: number;
 
     public constructor(canvas: HTMLCanvasElement, handle: FileSystemFileHandle) {
         this.canvas = canvas
@@ -60,6 +62,8 @@ export class CApp {
         this.velZoom = 0;
         this.mouseIsOut = true;
         this.actions = new Array();
+        this.zoomInTicks = 0;
+        this.zoomOutTicks = 0;
     }
 
     async init(state: IState) {
@@ -173,6 +177,15 @@ export class CApp {
     }
 
     private updateActions(delta: number) {
+        const ZOOM_INC = 0.025;
+        if (this.zoomInTicks > 0) {
+            this.incZoomLogarithm(-ZOOM_INC);
+            this.zoomInTicks--;
+        }
+        if (this.zoomOutTicks > 0) {
+            this.incZoomLogarithm(ZOOM_INC);
+            this.zoomOutTicks--;
+        }
         // reach maximum velocity in 200 ms
         const ACC = 2.5;
         const MAXVEL = 0.7;
@@ -287,20 +300,23 @@ export class CApp {
         // apply zoom velocity
         if (this.velZoom) {
             let dz = this.velZoom * delta / 1000
-            this.zoomLogarithm += dz
-            if (this.zoomLogarithm > 8.14786) {
-                this.zoomLogarithm = 8.14786;
-                this.velZoom = 0;
-            }
-            if (this.zoomLogarithm < 3.158883) {
-                this.zoomLogarithm = 3.158883;
-                this.velZoom = 0;
-            }
-            this.camera.nodeScale = zoomLogToScale(this.zoomLogarithm);
-            this.camera.z = Math.exp(this.zoomLogarithm)
-            // console.log(`Z ${this.camera.z}, log ${this.zoomLogarithm}, nodeScale ${this.camera.nodeScale}`)
-            this.camera.update()
+            this.incZoomLogarithm(dz);
         }
+    }
+
+    public incZoomLogarithm(dz: number) {
+        this.zoomLogarithm += dz
+        if (this.zoomLogarithm > 8.14786) {
+            this.zoomLogarithm = 8.14786;
+            this.velZoom = 0;
+        }
+        if (this.zoomLogarithm < 3.158883) {
+            this.zoomLogarithm = 3.158883;
+            this.velZoom = 0;
+        }
+        this.camera.nodeScale = zoomLogToScale(this.zoomLogarithm);
+        this.camera.z = Math.exp(this.zoomLogarithm)
+        this.camera.update()
     }
 
     public update() {
