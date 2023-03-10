@@ -6,6 +6,10 @@ The adjacency indices and coupled metadata are processed by a stand-alone progra
 
 There is a demo `state.json` file in `./dist/client/data` which may be loaded if none is provided by the user.
 
+There is also a larger file, based on the March 9, 2023 crawler results here:  https://github.com/runziggurat/zcash/blob/main/results/crawler/2023-03-09.json.gz
+
+The state file corresponding to that crawler sample is:  `dist/client/data/2023-03-09-state.json`
+
 
 ## General background concepts
 
@@ -15,8 +19,8 @@ There is a demo `state.json` file in `./dist/client/data` which may be loaded if
 
 
 - Degree centrality: the number of nodes a particular node is connected to
-- Closeness centrality:  for a given node, find the average of the shortest paths to each node. For n nodes, there are `n * (n - 1) / 2` unique paths.
-- Betweenness: The number of time a given node is used as a bridge between two nodes, for their shortest path.
+- Closeness centrality:  for a given node, find the average of the shortest paths to each node. For n nodes, there are `n * (n - 1) / 2` node-to-node connections, each one of which may have more than one distinct shortest path.
+- Betweenness: The number of time a given node is used as a bridge between two nodes, for their shortest path.  The actual value is scaling down by the total number of shortest paths.
 
 
 ## Build and run the app
@@ -32,7 +36,12 @@ The first screen give you two choices:  `Geolocation` or `Force-3D`
 
 ## View Geographically
 
-Select `Geolocation`.  You will then be asked to `Load default state` or `Choose state file`.  If you don't have state file at the ready, then just select the first choice.
+Select `Geolocation`.  You will then be asked to `Load default state` or `Choose state file`.  If you don't have state file at the ready, then just select the first choice.  You may also choose to explicitly load either of the two state files currently in the `p2p-viz` repository:
+```
+dist/client/data/state.json
+dist/client/data/2023-03-09-state.json
+```
+
 
 You will now see the nodes displayed over a world map.  The nodes are displayed as icosahedrons, with coloring based on the color mode (initially `degree`).
 
@@ -62,6 +71,6 @@ You will now see the network displayed as a phycially modelled system.
 
 -  camera contols are enabled for the mouse:  rotate and zoom
 -  when you hover over a node, you will see the node ID (index-based, `Nxxx`), the IP address, and the city
--  you can cycle the color mode (for now, only printed out in the browser's JavaScript conole)
+-  you can cycle the color mode (for now, only printed out in the browser's JavaScript console)
 -  when you click on a node, the connections will be displayed for that node.
 
