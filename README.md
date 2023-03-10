@@ -74,3 +74,24 @@ You will now see the network displayed as a phycially modelled system.
 -  you can cycle the color mode (for now, only printed out in the browser's JavaScript console)
 -  when you click on a node, the connections will be displayed for that node.
 
+## Sample Screen Shots
+
+Here, a node in Barcelona is selected. Node metadata is displayed in the upper right corner. The keyboard command overlay and fps display are both active.
+
+![](/screenshots/p2p-viz-001.png "")
+
+A node in Dublin is selected, and the display of connections is activated.
+
+![](/screenshots/p2p-viz-002.png "")
+
+A histogram is displayed for the betweenness centrality.
+
+![](/screenshots/p2p-viz-003.png "")
+
+We group several nodes at the same geolocation into a `supernode`, which is displayed as a magenta cube. The `subnodes` which comprise a supernode may be viewed by clicking on a selected supernode.
+
+![](/screenshots/p2p-viz-005.png "")
+
+This is a rendering using a directed force library in 3d.  The node coloring is based on the `degree` centrality, so number of connections.
+
+![](/screenshots/p2p-viz-004.png "")
