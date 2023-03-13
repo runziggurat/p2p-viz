@@ -8,6 +8,8 @@ on:
     paths:
       - "!.github/**"
 
+concurrency: deploy_ziggurat
+
 jobs:
   deploy-ziggurat-visualier:
     runs-on: ubuntu-latest
