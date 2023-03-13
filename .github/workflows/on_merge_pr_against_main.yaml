@@ -1,0 +1,54 @@
+name: Deploy Ziggurat visualizer
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "!.github/**"
+
+jobs:
+  deploy-ziggurat-visualier:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 18
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+
+    - name: Login to GCR
+      uses: docker/login-action@v2
+      with:
+        registry: europe-west1-docker.pkg.dev
+        username: _json_key
+        password: ${{ secrets.GCP_CREDENTIALS }}
+
+
+    - id: build-docker-image
+      name: Build Docker image using BuildKit
+      uses: docker/build-push-action@v2.10.0
+      with:
+        context: ./
+        file: ./Dockerfile
+        push: true
+        tags: europe-west1-docker.pkg.dev/eqg-ziggurat/ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}}
+
+    - id: 'compute-ssh'
+      uses: 'google-github-actions/ssh-compute@v0'
+      with:
+        instance_name: 'eqg-ziggurat-visualizer'
+        zone: 'europe-west1-b'
+        ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
+        command: 'sudo gcloud auth configure-docker europe-west1-docker.pkg.dev -q && sudo docker rm -f $(sudo docker ps -aq) && sudo docker pull europe-west1-docker.pkg.dev/eqg-ziggurat/ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}} && sudo docker run -d -p 3000:3000 europe-west1-docker.pkg.dev/eqg-ziggurat/ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}}'
