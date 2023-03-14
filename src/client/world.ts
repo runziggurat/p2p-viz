@@ -1,6 +1,6 @@
 /// <reference path="../../node_modules/@webgpu/types/dist/index.d.ts" />
 
-import { IState, EShader, INode, EColorMode, ENodeType } from './core'
+import { IState, EShader, INode, EColorMode, ENodeType, IGeolocation } from './core'
 import { CNode } from './node'
 import { vec2, vec3, vec4, mat4 } from 'gl-matrix'
 import { icosaGeometry } from './geomicosa'
@@ -259,11 +259,11 @@ export class CWorld {
         }
         // let now = Date.now();
         for (let node of this.nodes) {
-            node.incRotationY(2 * Math.PI / 180 * node.numConnections / 400);
+            node.incRotationY(2 * Math.PI / 180 * node.numConnections / 2400);
             node.updateMatrix();
         }
         for (let node of this.superNodes) {
-            node.incRotationY(2 * Math.PI / 180 * (0.36 + node.inode.cell_height/800));
+            node.incRotationY(2 * Math.PI / 180 * (0.36 + node.inode.num_subnodes/2400));
             node.updateMatrix();
         }
         this.updateSingleNodeData();
@@ -326,8 +326,8 @@ export class CWorld {
             this.longitudeNode.nodeValue = node.inode.geolocation.coordinates.longitude.toFixed(4);
             this.cityNode.nodeValue = node.inode.geolocation.city;
             this.countryNode.nodeValue = node.inode.geolocation.country;
-            this.positionNode.nodeValue = node.nodeType != ENodeType.Super ? node.inode.cell_position.toString() : '--';
-            this.heightNode.nodeValue = node.nodeType != ENodeType.Super ? node.inode.cell_height.toString() : '--';
+            this.positionNode.nodeValue = node.nodeType != ENodeType.Super ? node.inode.subnode_index.toString() : '--';
+            this.heightNode.nodeValue = node.nodeType != ENodeType.Super ? node.inode.num_subnodes.toString() : '--';
             document.getElementById("overlayRight").style.visibility = "visible";
         } else {
             document.getElementById("overlayRight").style.visibility = "hidden";
@@ -744,28 +744,67 @@ export class CWorld {
         console.log(this.degreeDescription);
     }
 
-    private createGeoString(lat: number, long: number) : string {
+    private createGeoString(geolocation: IGeolocation) : string {
         const DEGREE_RESOLUTION: number = 1.0 / 0.2;
-        let result: string = Math.floor(lat * DEGREE_RESOLUTION).toString() + ':' + Math.floor(long * DEGREE_RESOLUTION).toString();
+        let result: string = Math.floor(geolocation.coordinates.latitude * DEGREE_RESOLUTION).toString() + ':' + Math.floor(geolocation.coordinates.longitude * DEGREE_RESOLUTION).toString();
         return result;
+    }
+
+    private assignSubNodes(nodes: INode []) {
+        let nogeo: number = 0;
+        let nodeMap: Map<string, INode []> = new Map();
+
+        for (let inode of nodes) {
+            // remove port number from addr string.
+            inode.addr = inode.addr.substring(0, inode.addr.indexOf(':'));
+            if (!inode.geolocation) {
+                nogeo++;
+                console.log(`no geo location: ${nogeo}`, inode);
+                inode.geolocation = {
+                    country: 'unknown',
+                    city: 'unknown',
+                    coordinates: {
+                        latitude: 0,
+                        longitude: -10
+                    },
+                    timezone: '',
+                    isp: ''
+                }
+            }
+            inode.geostr = this.createGeoString(inode.geolocation);
+            let group = nodeMap.get(inode.geostr);
+            if (group) {
+                inode.subnode_index = group.length;
+                group.push(inode);
+            } else {
+                inode.subnode_index = 0;
+                group = new Array();
+                group.push(inode);
+                nodeMap.set(inode.geostr, group);
+            }
+        }
+        for (let [key, value] of nodeMap) {
+            for (let inode of value) {
+                inode.num_subnodes = value.length;
+            }
+        }
+        console.log('nodeMap length ', nodeMap.size);
     }
 
     public async initialize() {
         console.log('world::initialize, num nodes: ' + this.istate.nodes.length);
         let gl = this.gl;
         let id = 0;
+        this.assignSubNodes(this.istate.nodes);
         for (let inode of this.istate.nodes) {
-            let geostr: string = this.createGeoString(inode.geolocation.coordinates.latitude, inode.geolocation.coordinates.longitude);
-            // remove port number from addr string.
-            inode.addr = inode.addr.substring(0, inode.addr.indexOf(':'));
-            if (inode.cell_position == 1) {
-                if (inode.cell_height > 1) {
+            if (inode.subnode_index == 0) {
+                if (inode.num_subnodes > 1) {
                     // new super node
                     let superNode = new CNode(inode, this.istate.nodes.length+this.superNodes.length, this.superNodes.length, this.camera, ENodeType.Super, null);
                     // make super nodes magenta
                     superNode.degreeColor = vec4.fromValues(0.9, 0.0, 0.9, 1.0);
 
-                    this.superMap.set(geostr,superNode);
+                    this.superMap.set(inode.geostr,superNode);
                     this.superNodes.push(superNode);
                     let node = new CNode(inode, id, superNode.subNodes.length, this.camera, ENodeType.Sub, superNode);
                     this.nodes.push(node);
@@ -777,9 +816,9 @@ export class CWorld {
                     this.singleNodes.push(node);
                 }
             } else {
-                let superNode = this.superMap.get(geostr);
+                let superNode = this.superMap.get(inode.geostr);
                 if (!superNode) {
-                    console.log('  could not find supernode for geostr ', geostr);
+                    console.log('  could not find supernode for geostr ', inode.geostr);
                     console.log('  could not find supernode for inode ', inode);
                 }
                 let node = new CNode(inode, id, superNode.subNodes.length, this.camera, ENodeType.Sub, superNode);

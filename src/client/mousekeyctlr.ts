@@ -29,7 +29,6 @@ export class CMousekeyCtlr {
             self.onMouseEvent(evt);
         });
         window.addEventListener('wheel', (evt) => {
-            console.log(`wheel: dx ${evt.deltaX} dy ${evt.deltaY}`)
             self.onMouseEvent(evt);
         });
     }
@@ -52,7 +51,7 @@ export class CMousekeyCtlr {
         this.app.handleClickRelease(x, y);
     }
 
-    public onMouseEvent(evt: MouseEvent) {
+    public onMouseEvent(evt: any) {
         if (!this.app) {
             return;
         }
@@ -85,6 +84,18 @@ export class CMousekeyCtlr {
         } else if (evt.type == 'mouseup') {
             if(evt.button == 0) {
                 this.onMouseLeftUp(x, y);
+            }
+        } else if (evt.type == 'wheel') {
+            if (evt.deltaY > 0) {
+                this.app.zoomOutTicks += evt.deltaY/16;
+                if (this.app.zoomOutTicks > 10) {
+                    this.app.zoomOutTicks = 10;
+                }
+            } else {
+                this.app.zoomInTicks += -evt.deltaY/16;
+                if (this.app.zoomInTicks > 10) {
+                    this.app.zoomInTicks = 10;
+                }
             }
         }
     }
