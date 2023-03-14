@@ -113,8 +113,8 @@ export class CWorld {
     public longitudeNode: Text;
     public cityNode: Text;
     public countryNode: Text;
-    public positionNode: Text;
-    public heightNode: Text;
+    public subnodeIndexNode: Text;
+    public numSubnodesNode: Text;
     public colorModeNode: Text;
     public gradientNode: Text;
     public initialized: boolean;
@@ -129,8 +129,8 @@ export class CWorld {
         this.connectionsNode = document.createTextNode("");
         this.latitudeNode = document.createTextNode("");
         this.longitudeNode = document.createTextNode("");
-        this.positionNode = document.createTextNode("");
-        this.heightNode = document.createTextNode("");
+        this.subnodeIndexNode = document.createTextNode("");
+        this.numSubnodesNode = document.createTextNode("");
         this.cityNode = document.createTextNode("");
         this.countryNode = document.createTextNode("");
         this.colorModeNode = document.createTextNode("");
@@ -148,8 +148,8 @@ export class CWorld {
         document.querySelector("#connections").appendChild(this.connectionsNode);
         document.querySelector("#latitude").appendChild(this.latitudeNode);
         document.querySelector("#longitude").appendChild(this.longitudeNode);
-        document.querySelector("#position").appendChild(this.positionNode);
-        document.querySelector("#height").appendChild(this.heightNode);
+        document.querySelector("#subnode").appendChild(this.subnodeIndexNode);
+        document.querySelector("#numsubnodes").appendChild(this.numSubnodesNode);
         document.querySelector("#city").appendChild(this.cityNode);
         document.querySelector("#country").appendChild(this.countryNode);
         document.querySelector("#colormode").appendChild(this.colorModeNode);
@@ -326,8 +326,8 @@ export class CWorld {
             this.longitudeNode.nodeValue = node.inode.geolocation.coordinates.longitude.toFixed(4);
             this.cityNode.nodeValue = node.inode.geolocation.city;
             this.countryNode.nodeValue = node.inode.geolocation.country;
-            this.positionNode.nodeValue = node.nodeType != ENodeType.Super ? node.inode.subnode_index.toString() : '--';
-            this.heightNode.nodeValue = node.nodeType != ENodeType.Super ? node.inode.num_subnodes.toString() : '--';
+            this.subnodeIndexNode.nodeValue = node.nodeType != ENodeType.Sub ? '--' : node.inode.subnode_index.toString();
+            this.numSubnodesNode.nodeValue = node.nodeType != ENodeType.Sub ? '--' : node.inode.num_subnodes.toString();
             document.getElementById("overlayRight").style.visibility = "visible";
         } else {
             document.getElementById("overlayRight").style.visibility = "hidden";
