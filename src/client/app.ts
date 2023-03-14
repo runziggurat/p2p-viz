@@ -6,6 +6,9 @@ import { PCamera } from './camera'
 import { EKeyId, IKeyAction } from './core'
 import { zoomLogToScale } from './util'
 
+const APP_VERSION = '0.1.1';
+
+
 export class CApp {
     private mousekey: CMousekeyCtlr
     private initialized: boolean;
@@ -31,6 +34,7 @@ export class CApp {
         this.canvas = canvas
         this.canvas.width = window.innerWidth
         this.canvas.height = window.innerHeight
+        console.log('p2p-viz version: ', APP_VERSION);
         console.log('Use WebGL')
         this.gl = canvas.getContext("webgl2");
         if (!this.gl) {
