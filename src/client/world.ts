@@ -20,6 +20,7 @@ const NODE_TRANSFORM_SIZE: number = 28;
 const CONNECTION_TRANSFORM_SIZE: number = 12;
 const MAX_SUPERNODE_SCALE: number = 2.0;
 const MIN_SUPERNODE_SCALE: number = 0.5;
+const BEHIND_CAMERA_DISTANCE: number = 1000000;
 
 export class CWorld {
     public istate: IState;
@@ -275,7 +276,10 @@ export class CWorld {
     private updateSuperStatus(id) {
         if (id == -1) {
             if (this.selectedSuperNode) {
-                this.selectedSuperNode.isOpenedSuper = false;
+                if (this.selectedSuperNode.isOpenedSuper) {
+                    this.selectedSuperNode.isOpenedSuper = false;
+                    this.selectedSuperNode.position[2] -= BEHIND_CAMERA_DISTANCE;
+                }
                 this.selectedSuperNode = null;
             }
             return;
@@ -289,6 +293,7 @@ export class CWorld {
                 if (!node.isOpenedSuper) {
                     // open up the super node
                     node.isOpenedSuper = true;
+                    this.selectedSuperNode.position[2] += BEHIND_CAMERA_DISTANCE;
                     this.updateNodeColors();
                     let n = 0;
                     for (let subnode of node.subNodes) {
