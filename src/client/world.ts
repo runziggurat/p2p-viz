@@ -20,6 +20,7 @@ const NODE_TRANSFORM_SIZE: number = 28;
 const CONNECTION_TRANSFORM_SIZE: number = 12;
 const MAX_SUPERNODE_SCALE: number = 2.0;
 const MIN_SUPERNODE_SCALE: number = 0.5;
+const BEHIND_CAMERA_DISTANCE: number = 1000000;
 
 export class CWorld {
     public istate: IState;
@@ -40,12 +41,7 @@ export class CWorld {
     public topTexture: WebGLTexture;
     public inDrag: boolean;
     public inTap: boolean;
-    public inDragStartTime: number;
-    public mouseIsOut: boolean;
     public inSwipe: boolean;
-    public inTouchX: number;
-    public inTouchY: number;
-    public inTouchTime: number;
     private icosaGeometry: WebGLBuffer;
     private cubeGeometry: WebGLBuffer;
     private gradientGeometry: WebGLBuffer;
@@ -163,7 +159,6 @@ export class CWorld {
         this.camera = camera;
         this.gl = gl;
         this.inDrag = false;
-        this.mouseIsOut = true;
         this.nodes = new Array();
         this.singleNodes = new Array();
         this.superNodes = new Array();
@@ -275,7 +270,10 @@ export class CWorld {
     private updateSuperStatus(id) {
         if (id == -1) {
             if (this.selectedSuperNode) {
-                this.selectedSuperNode.isOpenedSuper = false;
+                if (this.selectedSuperNode.isOpenedSuper) {
+                    this.selectedSuperNode.isOpenedSuper = false;
+                    this.selectedSuperNode.position[2] -= BEHIND_CAMERA_DISTANCE;
+                }
                 this.selectedSuperNode = null;
             }
             return;
@@ -289,6 +287,7 @@ export class CWorld {
                 if (!node.isOpenedSuper) {
                     // open up the super node
                     node.isOpenedSuper = true;
+                    this.selectedSuperNode.position[2] += BEHIND_CAMERA_DISTANCE;
                     this.updateNodeColors();
                     let n = 0;
                     for (let subnode of node.subNodes) {
@@ -311,6 +310,7 @@ export class CWorld {
 
     public handleClick(x: number, y: number) {
         console.log(`world: handleClick: ${x}, ${y}`)
+        this.inDrag = true;
         let screenCoords : vec2 = vec2.fromValues(x/this.canvas.width, 1 - y/this.canvas.height )
         this.picker.preRender(screenCoords[0], screenCoords[1])
         this.renderPicker();
@@ -358,8 +358,23 @@ export class CWorld {
             this.drawConnections = this.numConnectionsToDraw > 0;
         } else {
             this.drawConnections = false;
+            this.inDrag = true;
         }
         this.selectedId = id
+    }
+
+    public handleMouseMove(dx: number, dy: number) {
+        if (this.inDrag) {
+            this.camera.drag(dx, dy);
+        }
+    }
+
+
+    public handleClickRelease(x: number, y: number) {
+        console.log(`world: handleClickRelease: ${x}, ${y}`)
+        if (this.inDrag) {
+            this.inDrag = false;
+        }
     }
 
     private initTransformData() {
