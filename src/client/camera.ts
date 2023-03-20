@@ -43,4 +43,12 @@ export class PCamera {
         mat4.invert(this.matView, matWorld)
         mat4.multiply(this.matViewProjection, this.matProjection, this.matView)
     }
+
+    public drag(dx: number, dy: number) {
+        let x = dx / this.canvas.width * this.worldWidth;
+        let y = dy / this.canvas.height * this.worldHeight;
+        this.x -= x;
+        this.y += y;
+        this.update();
+    }
 }

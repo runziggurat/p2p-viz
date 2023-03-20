@@ -19,13 +19,9 @@ export class CMousekeyCtlr {
             evt.preventDefault();
         }, false);
         window.addEventListener('mouseup', function(evt) {
-            let x = evt.offsetX;
-            let y = evt.offsetY;
             self.onMouseEvent(evt);
         });
         window.addEventListener('mousemove', (evt) => {
-            let x = evt.offsetX;
-            let y = evt.offsetY;
             self.onMouseEvent(evt);
         });
         window.addEventListener('wheel', (evt) => {
@@ -45,6 +41,7 @@ export class CMousekeyCtlr {
     }
 
     public onMouseMove(x: number, y: number) {
+        this.app.handleMouseMove(x, y);
     }
 
     public onMouseLeftUp(x: number, y: number) {
@@ -53,19 +50,6 @@ export class CMousekeyCtlr {
 
     public onMouseEvent(evt: any) {
         if (!this.app) {
-            return;
-        }
-
-        if (this.app.mouseIsOut && (evt.offsetX || evt.offsetY)) {
-            this.app.mouseIsOut = false;
-            // check left button
-            if (!(evt.buttons & 1)) {
-                this.app.handleClickRelease(evt.offsetX, evt.offsetY);
-            }
-            return;
-        }
-        if (!evt.offsetX && !evt.offsetY) {
-            this.app.mouseIsOut = true;
             return;
         }
 
@@ -80,7 +64,7 @@ export class CMousekeyCtlr {
                 this.onMouseRightDown(x, y, evt);
             }
         } else if (evt.type == 'mousemove') {
-            this.onMouseMove(x, y);
+            this.onMouseMove(evt.movementX, evt.movementY);
         } else if (evt.type == 'mouseup') {
             if(evt.button == 0) {
                 this.onMouseLeftUp(x, y);
