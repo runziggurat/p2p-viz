@@ -41,12 +41,7 @@ export class CWorld {
     public topTexture: WebGLTexture;
     public inDrag: boolean;
     public inTap: boolean;
-    public inDragStartTime: number;
-    public mouseIsOut: boolean;
     public inSwipe: boolean;
-    public inTouchX: number;
-    public inTouchY: number;
-    public inTouchTime: number;
     private icosaGeometry: WebGLBuffer;
     private cubeGeometry: WebGLBuffer;
     private gradientGeometry: WebGLBuffer;
@@ -164,7 +159,6 @@ export class CWorld {
         this.camera = camera;
         this.gl = gl;
         this.inDrag = false;
-        this.mouseIsOut = true;
         this.nodes = new Array();
         this.singleNodes = new Array();
         this.superNodes = new Array();
@@ -316,6 +310,7 @@ export class CWorld {
 
     public handleClick(x: number, y: number) {
         console.log(`world: handleClick: ${x}, ${y}`)
+        this.inDrag = true;
         let screenCoords : vec2 = vec2.fromValues(x/this.canvas.width, 1 - y/this.canvas.height )
         this.picker.preRender(screenCoords[0], screenCoords[1])
         this.renderPicker();
@@ -363,8 +358,23 @@ export class CWorld {
             this.drawConnections = this.numConnectionsToDraw > 0;
         } else {
             this.drawConnections = false;
+            this.inDrag = true;
         }
         this.selectedId = id
+    }
+
+    public handleMouseMove(dx: number, dy: number) {
+        if (this.inDrag) {
+            this.camera.drag(dx, dy);
+        }
+    }
+
+
+    public handleClickRelease(x: number, y: number) {
+        console.log(`world: handleClickRelease: ${x}, ${y}`)
+        if (this.inDrag) {
+            this.inDrag = false;
+        }
     }
 
     private initTransformData() {

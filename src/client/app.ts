@@ -26,7 +26,6 @@ export class CApp {
     private velZoom: number;
     private zoomLogarithm: number;
     private lastUpdateTime: number;
-    public mouseIsOut: boolean;
     public zoomInTicks: number;
     public zoomOutTicks: number;
 
@@ -64,7 +63,6 @@ export class CApp {
         this.velPanX = 0;
         this.velPanY = 0;
         this.velZoom = 0;
-        this.mouseIsOut = true;
         this.actions = new Array();
         this.zoomInTicks = 0;
         this.zoomOutTicks = 0;
@@ -174,6 +172,11 @@ export class CApp {
     }
 
     public handleClickRelease(x: number, y: number) {
+        this.world.handleClickRelease(x-0.5, y-0.5)
+    }
+
+    public handleMouseMove(dx: number, dy: number) {
+        this.world.handleMouseMove(dx, dy);
     }
 
     public handleClick(x: number, y: number) {
