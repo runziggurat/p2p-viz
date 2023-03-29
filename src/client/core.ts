@@ -35,6 +35,12 @@ export interface IShader {
     fragment: string
 }
 
+export enum ENetworkType {
+    Unknown = 'Unknown',
+    Zcash = 'Zcash',
+    Ripple = 'Ripple',
+}
+
 export enum EKeyId {
     ArrowLeft = 'left',
     ArrowRight = 'right',
@@ -52,8 +58,8 @@ export enum EKeyId {
 
 export interface IKeyAction {
     id: EKeyId
-    timestamp: number;
-    acceleration: number;
+    timestamp: number
+    acceleration: number
     velocity: number
 }
 
@@ -76,6 +82,7 @@ export interface IGeolocation {
 
 export interface INode {
     addr: string
+    network_type: ENetworkType
     betweenness: number
     closeness: number
     num_subnodes: number

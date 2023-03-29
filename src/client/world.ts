@@ -291,7 +291,7 @@ export class CWorld {
                     this.updateNodeColors();
                     let n = 0;
                     for (let subnode of node.subNodes) {
-                        this.mainSubGroup.transformData.set(subnode.degreeColor, n);
+                        this.mainSubGroup.transformData.set(subnode.getCurrentColor(this.colorMode), n);
                         this.mainSubGroup.transformData.set(subnode.metadata, n+4);
                         this.mainSubGroup.transformData.set(subnode.idColor, n+8);
                         this.mainSubGroup.transformData.set(subnode.matWorld, n+12);
@@ -383,7 +383,7 @@ export class CWorld {
         this.mainSingleGroup.transformData = new Float32Array(this.singleNodes.length * NODE_TRANSFORM_SIZE);
         let n: number = 0;
         for (let node of this.singleNodes) {
-            this.mainSingleGroup.transformData.set(node.degreeColor, n);
+            this.mainSingleGroup.transformData.set(node.getCurrentColor(EColorMode.Degree), n);
             this.mainSingleGroup.transformData.set(node.metadata, n+4);
             this.mainSingleGroup.transformData.set(node.idColor, n+8);
             this.mainSingleGroup.transformData.set(node.matWorld, n+12);
