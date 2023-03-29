@@ -1,12 +1,13 @@
 /// <reference path="../../node_modules/@webgpu/types/dist/index.d.ts" />
 
-import { INode, WORLD_WIDTH, WORLD_HEIGHT, EColorMode, ENodeType } from './core'
+import { INode, WORLD_WIDTH, WORLD_HEIGHT, EColorMode, ENodeType, ENetworkType } from './core'
 import { mat4, vec3, vec4 } from 'gl-matrix'
 import { idToColor } from './util'
 import { PCamera } from './camera'
 
 
 const SUBNODE_ABSTAND: number = 2;
+const COLOR_DARK_GRAY: vec4 = vec4.fromValues(0.2, 0.2, 0.2, 1.0);
 
 export class CNode {
     public inode: INode;
@@ -67,6 +68,9 @@ export class CNode {
     }
 
     public getCurrentColor(colorMode: EColorMode) : vec4 {
+        if (this.inode.network_type == ENetworkType.Unknown) {
+            return COLOR_DARK_GRAY;
+        }
         if (this.nodeType == ENodeType.Super) {
             return this.degreeColor;
         }
