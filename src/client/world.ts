@@ -102,6 +102,7 @@ export class CWorld {
     public timeNode: Text;
     public fpsNode: Text;
     public ipNode: Text;
+    public networkTypeNode: Text;
     public betweennessNode: Text;
     public closenessNode: Text;
     public connectionsNode: Text;
@@ -120,6 +121,7 @@ export class CWorld {
         this.timeNode = document.createTextNode("");
         this.fpsNode = document.createTextNode("");
         this.ipNode = document.createTextNode("");
+        this.networkTypeNode = document.createTextNode("");
         this.betweennessNode = document.createTextNode("");
         this.closenessNode = document.createTextNode("");
         this.connectionsNode = document.createTextNode("");
@@ -139,6 +141,7 @@ export class CWorld {
         document.querySelector("#time").appendChild(this.timeNode);
         document.querySelector("#fps").appendChild(this.fpsNode);
         document.querySelector("#ip").appendChild(this.ipNode);
+        document.querySelector("#networktype").appendChild(this.networkTypeNode);
         document.querySelector("#betweenness").appendChild(this.betweennessNode);
         document.querySelector("#closeness").appendChild(this.closenessNode);
         document.querySelector("#connections").appendChild(this.connectionsNode);
@@ -254,6 +257,7 @@ export class CWorld {
         }
         // let now = Date.now();
         for (let node of this.nodes) {
+            if (node.inode.ignore) continue;
             node.incRotationY(2 * Math.PI / 180 * node.numConnections / 2400);
             node.updateMatrix();
         }
@@ -319,6 +323,7 @@ export class CWorld {
         if (id >= 0) {
             let node = this.getNode(id);
             this.ipNode.nodeValue = node.nodeType != ENodeType.Super ? 'IP: ' + node.inode.addr : `Super Node: ${node.subNodes.length} nodes`;
+            this.networkTypeNode.nodeValue = node.inode.network_type;
             this.betweennessNode.nodeValue = node.nodeType != ENodeType.Super ? node.inode.betweenness.toFixed(6) : '--';
             this.closenessNode.nodeValue = node.nodeType != ENodeType.Super ? node.inode.closeness.toFixed(6) : '--';
             this.connectionsNode.nodeValue = node.nodeType != ENodeType.Super ? node.numConnections.toString() : '--';
@@ -436,10 +441,12 @@ export class CWorld {
         if (node.nodeType == ENodeType.Super) {
             return 0;
         }
+        console.log('setConnectionData', node)
         let gl = this.gl;
         let n: number = 0;
         for (let index of node.inode.connections) {
             let connection: CNode = this.nodes[index];
+            if (connection.inode.ignore) continue;
             this.connectionData.set(connection.getCurrentColor(this.colorMode), n);
             this.connectionData.set(node.position, n+4);
             let delta: vec3 = vec3.create();
@@ -774,7 +781,7 @@ export class CWorld {
             inode.addr = inode.addr.substring(0, inode.addr.indexOf(':'));
             if (!inode.geolocation) {
                 nogeo++;
-                console.log(`no geo location: ${nogeo}`, inode);
+                // console.log(`no geo location: ${nogeo}`, inode);
                 inode.geolocation = {
                     country: 'unknown',
                     city: 'unknown',
@@ -787,6 +794,7 @@ export class CWorld {
                 }
             }
             inode.geostr = this.createGeoString(inode.geolocation);
+            if (inode.ignore) continue;
             let group = nodeMap.get(inode.geostr);
             if (group) {
                 inode.subnode_index = group.length;
@@ -806,14 +814,48 @@ export class CWorld {
         console.log('nodeMap length ', nodeMap.size);
     }
 
-    public async initialize() {
+    private filter(filter: String) {
+        if (!filter) return;
+        console.log('filter: ', filter);
+        for (let inode of this.istate.nodes) {
+            if (inode.network_type != filter) {
+                inode.ignore = true;
+            } else {
+                inode.ignore = false;
+            }
+        }
+        for (let inode of this.istate.nodes) {
+            if (!inode.ignore) {
+                // console.log('ignore type: ',inode.network_type)
+                let newConnections = new Array();
+                for (let index of inode.connections) {
+                    let connection = this.istate.nodes[index];
+                    if (!connection.ignore) {
+                        newConnections.push(index);
+                    }
+                }
+                inode.connections = newConnections
+            }
+        }
+    }
+
+    public async initialize(filter: String) {
         console.log('world::initialize, num nodes: ' + this.istate.nodes.length);
         let gl = this.gl;
         let id = 0;
+        this.filter(filter);
         this.assignSubNodes(this.istate.nodes);
         for (let inode of this.istate.nodes) {
-            if (inode.subnode_index == 0) {
-                if (inode.num_subnodes > 1) {
+            if (inode.ignore) {
+                let node = new CNode(inode, id, 0, this.camera, ENodeType.Hide, null);
+                this.nodes.push(node);
+                id++;
+                continue;
+            }
+            // if filtering is on, we do not create any supernodes or subnodes.
+            // All nodes are therefore a single node.
+            if (inode.subnode_index == 0 || filter) {
+                if (inode.num_subnodes > 1 && !filter) {
                     // new super node
                     let superNode = new CNode(inode, this.istate.nodes.length+this.superNodes.length, this.superNodes.length, this.camera, ENodeType.Super, null);
                     // make super nodes magenta

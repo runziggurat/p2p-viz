@@ -24,6 +24,7 @@ export enum ENodeType {
     Single = 0,
     Super,
     Sub,
+    Hide
 }
 
 export interface ICamera {
@@ -90,6 +91,7 @@ export interface INode {
     connections: number []
     geolocation: IGeolocation
     geostr: string
+    ignore: boolean
 }
 
 export interface IState {
