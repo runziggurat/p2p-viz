@@ -29,7 +29,12 @@ async function loadGeoState() {
     document.getElementById("overlayLeft").style.visibility = 'visible';
     document.getElementById("gradient").style.visibility = 'visible';
     window.addEventListener('resize', onWindowResize, false);
-    app = new CApp(document.querySelector("#bancan"), fileHandle)
+    const url = window.location.href;
+    console.log("url: ", url);
+    const searchParams = new URLSearchParams(url.substring(url.indexOf('?')));
+    const filter = searchParams.get('filter');
+    console.log('filter: ', filter);
+    app = new CApp(document.querySelector("#bancan"), fileHandle, filter)
 }
 
 async function loadDefaultState() {
@@ -38,7 +43,13 @@ async function loadDefaultState() {
     document.getElementById("overlayLeft").style.visibility = 'visible';
     document.getElementById("gradient").style.visibility = 'visible';
     window.addEventListener('resize', onWindowResize, false);
-    app = new CApp(document.querySelector("#bancan"), null)
+
+    const url = window.location.href;
+    console.log("url: ", url);
+    const searchParams = new URLSearchParams(url.substring(url.indexOf('?')));
+    const filter = searchParams.get('filter');
+    console.log('filter: ', filter);
+    app = new CApp(document.querySelector("#bancan"), null, filter)
 }
 
 

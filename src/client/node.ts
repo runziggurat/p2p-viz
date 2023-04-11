@@ -94,7 +94,7 @@ export class CNode {
         let x: number = (this.inode.geolocation.coordinates.longitude + 180) / 360;
         let y: number = (this.inode.geolocation.coordinates.latitude + 90) / 180;
         let z: number = 1.0 * zScale;
-        if (this.nodeType == ENodeType.Sub) {
+        if (this.inode.num_subnodes > 1) {
             this.setSubnodeOffset(this.inode.subnode_index, this.inode.num_subnodes);
         }
 

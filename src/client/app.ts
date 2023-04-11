@@ -6,7 +6,7 @@ import { PCamera } from './camera'
 import { EKeyId, IKeyAction } from './core'
 import { zoomLogToScale } from './util'
 
-const APP_VERSION = '0.1.3';
+const APP_VERSION = '0.1.4';
 
 
 export class CApp {
@@ -29,7 +29,7 @@ export class CApp {
     public zoomInTicks: number;
     public zoomOutTicks: number;
 
-    public constructor(canvas: HTMLCanvasElement, handle: FileSystemFileHandle) {
+    public constructor(canvas: HTMLCanvasElement, handle: FileSystemFileHandle, filter: String) {
         this.canvas = canvas
         this.canvas.width = window.innerWidth
         this.canvas.height = window.innerHeight
@@ -46,13 +46,13 @@ export class CApp {
             handle.getFile().then( async (file: File) => {
                 const contents = await file.text();
                     let istate = <IState>JSON.parse(contents)
-                        await self.init(istate)
+                        await self.init(istate, filter)
                 });
         } else {
             console.log('load default state.json')
             self.readTextFile('data/state.json', async function(atext: string) {
                 let istate = <IState>JSON.parse(atext)
-                    await self.init(istate)
+                    await self.init(istate, filter)
             });
         }
 
@@ -68,12 +68,19 @@ export class CApp {
         this.zoomOutTicks = 0;
     }
 
-    async init(state: IState) {
+    async init(state: IState, filter: String) {
         this.camera = new PCamera(0, 0, INITIAL_CAMERA_Z, this.canvas);
         this.initialize();
         this.initializeWebGl(this.gl);
         this.world = new CWorld(state, this.gl, this.canvas, this.camera);
-        await this.world.initialize();
+        if (filter) {
+            // The only filter we have right now is Zcash
+            if (filter != 'Zcash') {
+                console.log('invalid filter value: ', filter);
+                filter = null;
+            }
+        }
+        await this.world.initialize(filter);
         this.initialized = true;
         this.mousekey = new CMousekeyCtlr(this);
     }
