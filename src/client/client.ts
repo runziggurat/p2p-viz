@@ -7,6 +7,15 @@ var loadgeo = document.getElementById("loadgeo");
 if (loadgeo) loadgeo.addEventListener("click", loadGeoState, false);
 var defaultgeo = document.getElementById("defaultgeo");
 if (defaultgeo) defaultgeo.addEventListener("click", loadDefaultState, false);
+
+
+function getFilter() : String {
+    let filterElement: HTMLInputElement = document.getElementById("filter") as HTMLInputElement;
+    let filter = filterElement.value;
+    console.log("filter: ", filter);
+    return filter;
+}
+
 async function loadGeoState() {
     let fileHandle: FileSystemFileHandle;
     try {
@@ -29,12 +38,8 @@ async function loadGeoState() {
     document.getElementById("overlayLeft").style.visibility = 'visible';
     document.getElementById("gradient").style.visibility = 'visible';
     window.addEventListener('resize', onWindowResize, false);
-    const url = window.location.href;
-    console.log("url: ", url);
-    const searchParams = new URLSearchParams(url.substring(url.indexOf('?')));
-    const filter = searchParams.get('filter');
-    console.log('filter: ', filter);
-    app = new CApp(document.querySelector("#bancan"), fileHandle, filter)
+
+    app = new CApp(document.querySelector("#bancan"), fileHandle, getFilter())
 }
 
 async function loadDefaultState() {
@@ -44,12 +49,7 @@ async function loadDefaultState() {
     document.getElementById("gradient").style.visibility = 'visible';
     window.addEventListener('resize', onWindowResize, false);
 
-    const url = window.location.href;
-    console.log("url: ", url);
-    const searchParams = new URLSearchParams(url.substring(url.indexOf('?')));
-    const filter = searchParams.get('filter');
-    console.log('filter: ', filter);
-    app = new CApp(document.querySelector("#bancan"), null, filter)
+    app = new CApp(document.querySelector("#bancan"), null, getFilter())
 }
 
 

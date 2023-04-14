@@ -818,7 +818,7 @@ export class CWorld {
         if (!filter) return;
         console.log('filter: ', filter);
         for (let inode of this.istate.nodes) {
-            if (inode.network_type != filter) {
+            if (inode.network_type.toLowerCase() != filter) {
                 inode.ignore = true;
             } else {
                 inode.ignore = false;

@@ -6,7 +6,7 @@ import { PCamera } from './camera'
 import { EKeyId, IKeyAction } from './core'
 import { zoomLogToScale } from './util'
 
-const APP_VERSION = '0.1.4';
+const APP_VERSION = '0.1.5';
 
 
 export class CApp {
@@ -74,8 +74,9 @@ export class CApp {
         this.initializeWebGl(this.gl);
         this.world = new CWorld(state, this.gl, this.canvas, this.camera);
         if (filter) {
-            // The only filter we have right now is Zcash
-            if (filter != 'Zcash') {
+            // The only filter we have right now is ZCash
+            filter = filter.toLowerCase();
+            if (filter != 'zcash') {
                 console.log('invalid filter value: ', filter);
                 filter = null;
             }
