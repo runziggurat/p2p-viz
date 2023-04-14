@@ -6,7 +6,7 @@ import { PCamera } from './camera'
 import { EKeyId, IKeyAction } from './core'
 import { zoomLogToScale } from './util'
 
-const APP_VERSION = '0.1.5';
+const APP_VERSION = '0.1.6';
 
 
 export class CApp {
