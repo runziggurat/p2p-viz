@@ -279,21 +279,30 @@ export class CWorld {
 
     private updateSuperStatus(id) {
         // first, restore supernode to default state if opened
-        if (this.selectedSuperNode && this.selectedSuperNode.id != id) {
-            if (this.selectedSuperNode.isOpenedSuper) {
-                this.selectedSuperNode.isOpenedSuper = false;
-                this.selectedSuperNode.position[2] -= BEHIND_CAMERA_DISTANCE;
+        if (id == -1) {
+            if (this.selectedSuperNode && this.selectedSuperNode.id != id) {
+                if (this.selectedSuperNode.isOpenedSuper) {
+                    this.selectedSuperNode.isOpenedSuper = false;
+                    this.selectedSuperNode.position[2] -= BEHIND_CAMERA_DISTANCE;
+                }
+                this.selectedSuperNode = null;
             }
-            this.selectedSuperNode = null;
+            return;
         }
-
-        if (id == -1) return;
 
         let node = this.getNode(id);
         if (node.nodeType != ENodeType.Super) {
             return;
         }
+
         if (this.selectedSuperNode) {
+            if (this.selectedSuperNode.id != id) {
+                if (this.selectedSuperNode.isOpenedSuper) {
+                    this.selectedSuperNode.isOpenedSuper = false;
+                    this.selectedSuperNode.position[2] -= BEHIND_CAMERA_DISTANCE;
+                }
+                this.selectedSuperNode = null;
+            }
             if (node == this.selectedSuperNode)  {
                 if (!node.isOpenedSuper) {
                     // open up the super node
@@ -311,8 +320,8 @@ export class CWorld {
                     console.log('new subnodes has length ', node.subNodes.length);
                 }
             } else {
-                this.selectedSuperNode.isOpenedSuper = false;
                 this.selectedSuperNode = node;
+                this.selectedSuperNode.isOpenedSuper = false;
             }
         } else {
             this.selectedSuperNode = node;
@@ -363,6 +372,7 @@ export class CWorld {
             } else if (node.nodeType == ENodeType.Super) {
                 this.mainSuperGroup.transformData.set(this.white, node.index*NODE_TRANSFORM_SIZE);
             } else {
+                console.log('subnode offset: ', node.subnodeOffset);
                 this.mainSubGroup.transformData.set(this.white, node.index*NODE_TRANSFORM_SIZE);
             }
             if (!this.isTiny) {
@@ -450,7 +460,6 @@ export class CWorld {
         if (node.nodeType == ENodeType.Super) {
             return 0;
         }
-        console.log('setConnectionData', node)
         let gl = this.gl;
         let n: number = 0;
         for (let index of node.inode.connections) {
@@ -854,9 +863,10 @@ export class CWorld {
         let id = 0;
         this.assignSubNodes(this.istate.nodes);
         this.isTiny = this.istate.nodes.length < TINY_GRAPH_NODES;
+        let abstand: number = this.isTiny ? 4.0 : 2.0;
         for (let inode of this.istate.nodes) {
             if (inode.ignore) {
-                let node = new CNode(inode, id, 0, this.camera, ENodeType.Hide, null);
+                let node = new CNode(inode, id, 0, this.camera, ENodeType.Hide, null, abstand);
                 this.nodes.push(node);
                 id++;
                 continue;
@@ -866,18 +876,18 @@ export class CWorld {
             if (inode.subnode_index == 0 || this.isTiny) {
                 if (inode.num_subnodes > 1 && !this.isTiny) {
                     // new super node
-                    let superNode = new CNode(inode, this.istate.nodes.length+this.superNodes.length, this.superNodes.length, this.camera, ENodeType.Super, null);
+                    let superNode = new CNode(inode, this.istate.nodes.length+this.superNodes.length, this.superNodes.length, this.camera, ENodeType.Super, null, 0);
                     // make super nodes magenta
                     superNode.degreeColor = COLOR_MAGENTA;
 
                     this.superMap.set(inode.geostr,superNode);
                     this.superNodes.push(superNode);
-                    let node = new CNode(inode, id, superNode.subNodes.length, this.camera, ENodeType.Sub, superNode);
+                    let node = new CNode(inode, id, superNode.subNodes.length, this.camera, ENodeType.Sub, superNode, abstand);
                     this.nodes.push(node);
                     superNode.subNodes.push(node);
                  } else {
                     // new single node
-                    let node = new CNode(inode, id, this.singleNodes.length, this.camera, ENodeType.Single, null);
+                    let node = new CNode(inode, id, this.singleNodes.length, this.camera, ENodeType.Single, null, abstand);
                     this.nodes.push(node);
                     this.singleNodes.push(node);
                 }
@@ -887,7 +897,7 @@ export class CWorld {
                     console.log('  could not find supernode for geostr ', inode.geostr);
                     console.log('  could not find supernode for inode ', inode);
                 }
-                let node = new CNode(inode, id, superNode.subNodes.length, this.camera, ENodeType.Sub, superNode);
+                let node = new CNode(inode, id, superNode.subNodes.length, this.camera, ENodeType.Sub, superNode, abstand);
                 this.nodes.push(node);
                 superNode.subNodes.push(node);
                 if (superNode.subNodes.length > this.maxSubnodes) {
