@@ -2,6 +2,8 @@ import { showOpenFilePicker } from 'file-system-access'
 import ForceGraph3D from '3d-force-graph';
 import { IState, INode, EColorMode } from './core';
 
+const TINY_GRAPH_NODES: number = 400;
+
 let Graph: any;
 
 let maxConnections = 0;
@@ -10,7 +12,7 @@ let minBetweenness = 100;
 let maxBetweenness = 0;
 let minCloseness = 100;
 let maxCloseness = 0;
-let colorMode = EColorMode.Degree;
+let colorMode = EColorMode.Close;
 
 function updateStats(inode: INode) {
     if (inode.connections.length > maxConnections) {
@@ -112,7 +114,7 @@ export async function loadForceState() {
     });
 }
 
-export async function loadDefaultState() {
+export async function loadUnfilteredState() {
     window.addEventListener('keydown', (evt) => {
         onKeydownEvent(evt);
     });
@@ -129,6 +131,28 @@ export async function loadDefaultState() {
     rawFile.send(null);
 }
 
+async function loadDemo(filepath: string) {
+    window.addEventListener('keydown', (evt) => {
+        onKeydownEvent(evt);
+    });
+
+
+    var rawFile = new XMLHttpRequest();
+    rawFile.overrideMimeType("application/json");
+    rawFile.open("GET", filepath, true);
+    rawFile.onreadystatechange = function() {
+        if (rawFile.readyState == 4 && rawFile.status == 200) {
+            handleStateText(rawFile.responseText);
+        }
+    }
+    rawFile.send(null);
+}
+export async function loadFilteredDemo() {
+    loadDemo('data/filtered.json')
+}
+// export async function loadUnfilteredDemo() {
+//     loadDemo('data/state.json')
+// }
 function handleStateText(text: string) {
     let istate : IState = JSON.parse(text);
     let nodes = new Array();
@@ -137,6 +161,7 @@ function handleStateText(text: string) {
     for (let node of istate.nodes) {
         updateStats(node);
     }
+    let isTiny = istate.nodes.length < TINY_GRAPH_NODES;
     for (let node of istate.nodes) {
         let id = 'id' + i.toString();
         let name = 'N' + i.toString();
@@ -168,23 +193,26 @@ function handleStateText(text: string) {
         nodes, links
     }
 
-    console.log('Color mode is now DEGREE.');
+    console.log('Color mode is now CLOSENESS.');
     Graph = ForceGraph3D()
     (document.getElementById('graph'))
-        .linkVisibility(false)
-        .nodeColor(node => node['degreeColor'])
+        .linkVisibility(isTiny)
+        .nodeColor(node => node['closeColor'])
         .nodeLabel(node => `${node['name']}: ${node['ip']} ${node['city']}`)
         .graphData(Data);
    
-
-    Graph.onNodeClick(node => {
-        Graph.linkVisibility((link) => {
-            return link.source['name'] == node['name'];})
-           });
+    if (!isTiny) {
+        Graph.onNodeClick(node => {
+            Graph.linkVisibility((link) => {
+                return link.source['name'] == node['name'];})
+            });
+    }
 
 }
 
 var clickforce = document.getElementById("clickforce");
 if (clickforce) clickforce.addEventListener("click", loadForceState, false);
-var defaultforce = document.getElementById("defaultforce");
-if (defaultforce) defaultforce.addEventListener("click", loadDefaultState, false);
+// var forceu = document.getElementById("forceu");
+// if (forceu) forceu.addEventListener("click", loadUnfilteredDemo, false);
+var forcef = document.getElementById("forcef");
+if (forcef) forcef.addEventListener("click", loadFilteredDemo, false);

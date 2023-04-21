@@ -6,8 +6,7 @@ import { PCamera } from './camera'
 import { EKeyId, IKeyAction } from './core'
 import { zoomLogToScale } from './util'
 
-const APP_VERSION = '0.1.6';
-
+const APP_VERSION = '0.1.8';
 
 export class CApp {
     private mousekey: CMousekeyCtlr
@@ -29,7 +28,7 @@ export class CApp {
     public zoomInTicks: number;
     public zoomOutTicks: number;
 
-    public constructor(canvas: HTMLCanvasElement, handle: FileSystemFileHandle, filter: String) {
+    public constructor(canvas: HTMLCanvasElement, handle: FileSystemFileHandle, isFiltered: boolean) {
         this.canvas = canvas
         this.canvas.width = window.innerWidth
         this.canvas.height = window.innerHeight
@@ -46,14 +45,22 @@ export class CApp {
             handle.getFile().then( async (file: File) => {
                 const contents = await file.text();
                     let istate = <IState>JSON.parse(contents)
-                        await self.init(istate, filter)
+                        await self.init(istate)
                 });
         } else {
-            console.log('load default state.json')
-            self.readTextFile('data/state.json', async function(atext: string) {
-                let istate = <IState>JSON.parse(atext)
-                    await self.init(istate, filter)
-            });
+            if (isFiltered) {
+                console.log('load demo filtered state.json')
+                self.readTextFile('data/filtered.json', async function(atext: string) {
+                    let istate = <IState>JSON.parse(atext)
+                        await self.init(istate)
+                });
+            } else {
+                console.log('load demo unfiltered state.json')
+                self.readTextFile('data/state.json', async function(atext: string) {
+                    let istate = <IState>JSON.parse(atext)
+                        await self.init(istate)
+                });
+            }
         }
 
         this.startTime = Date.now()/1000
@@ -68,20 +75,12 @@ export class CApp {
         this.zoomOutTicks = 0;
     }
 
-    async init(state: IState, filter: String) {
+    async init(state: IState) {
         this.camera = new PCamera(0, 0, INITIAL_CAMERA_Z, this.canvas);
         this.initialize();
         this.initializeWebGl(this.gl);
         this.world = new CWorld(state, this.gl, this.canvas, this.camera);
-        if (filter) {
-            // The only filter we have right now is ZCash
-            filter = filter.toLowerCase();
-            if (filter != 'zcash') {
-                console.log('invalid filter value: ', filter);
-                filter = null;
-            }
-        }
-        await this.world.initialize(filter);
+        await this.world.initialize();
         this.initialized = true;
         this.mousekey = new CMousekeyCtlr(this);
     }
@@ -144,6 +143,7 @@ export class CApp {
         if (isDown) {
             if (id == EKeyId.ToggleConnection && this.world) {
                 this.world.connectionMode = !this.world.connectionMode;
+                console.log('connection mode is now ', this.world.connectionMode);
             }
             if (id == EKeyId.ToggleCommand && this.world) {
                 this.world.displayCommand = !this.world.displayCommand;
