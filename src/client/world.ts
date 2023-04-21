@@ -21,6 +21,9 @@ const CONNECTION_TRANSFORM_SIZE: number = 12;
 const MAX_SUPERNODE_SCALE: number = 2.0;
 const MIN_SUPERNODE_SCALE: number = 0.5;
 const BEHIND_CAMERA_DISTANCE: number = 1000000;
+const TINY_GRAPH_NODES: number = 400;
+const COLOR_MAGENTA: vec4 = vec4.fromValues(0.9, 0.0, 0.9, 1.0);
+const COLOR_BLACK: vec4 = vec4.fromValues(0.2, 0.2, 0.2, 1.0);
 
 export class CWorld {
     public istate: IState;
@@ -79,6 +82,7 @@ export class CWorld {
     private selectedId: number;
     private white: vec4;;
     private maxConnections: number;
+    private numConnections: number;
     private minConnections: number;
     private maxSubnodes: number;
     private drawConnections: boolean;
@@ -115,6 +119,7 @@ export class CWorld {
     public colorModeNode: Text;
     public gradientNode: Text;
     public initialized: boolean;
+    public isTiny: boolean;
 
     private initTextNodes() {
         // Create text nodes to save some time for the browser.
@@ -172,6 +177,7 @@ export class CWorld {
         this.selectedId = -1;
         this.white = vec4.fromValues(1, 1, 1, 1);
         this.maxConnections = 0;
+        this.numConnections = 0;
         this.minConnections = 10000;
         this.drawConnections = false;
         this.numConnectionsToDraw = 0;
@@ -272,16 +278,17 @@ export class CWorld {
     }
 
     private updateSuperStatus(id) {
-        if (id == -1) {
-            if (this.selectedSuperNode) {
-                if (this.selectedSuperNode.isOpenedSuper) {
-                    this.selectedSuperNode.isOpenedSuper = false;
-                    this.selectedSuperNode.position[2] -= BEHIND_CAMERA_DISTANCE;
-                }
-                this.selectedSuperNode = null;
+        // first, restore supernode to default state if opened
+        if (this.selectedSuperNode && this.selectedSuperNode.id != id) {
+            if (this.selectedSuperNode.isOpenedSuper) {
+                this.selectedSuperNode.isOpenedSuper = false;
+                this.selectedSuperNode.position[2] -= BEHIND_CAMERA_DISTANCE;
             }
-            return;
+            this.selectedSuperNode = null;
         }
+
+        if (id == -1) return;
+
         let node = this.getNode(id);
         if (node.nodeType != ENodeType.Super) {
             return;
@@ -313,7 +320,6 @@ export class CWorld {
     }
 
     public handleClick(x: number, y: number) {
-        console.log(`world: handleClick: ${x}, ${y}`)
         this.inDrag = true;
         let screenCoords : vec2 = vec2.fromValues(x/this.canvas.width, 1 - y/this.canvas.height )
         this.picker.preRender(screenCoords[0], screenCoords[1])
@@ -359,10 +365,14 @@ export class CWorld {
             } else {
                 this.mainSubGroup.transformData.set(this.white, node.index*NODE_TRANSFORM_SIZE);
             }
-            this.numConnectionsToDraw = this.setConnectionData(node);
-            this.drawConnections = this.numConnectionsToDraw > 0;
+            if (!this.isTiny) {
+                this.numConnectionsToDraw = this.setConnectionData(node);
+                this.drawConnections = this.numConnectionsToDraw > 0;
+            }
         } else {
-            this.drawConnections = false;
+            if (!this.isTiny) {
+                this.drawConnections = false;
+            }
             this.inDrag = true;
         }
         this.selectedId = id
@@ -376,7 +386,6 @@ export class CWorld {
 
 
     public handleClickRelease(x: number, y: number) {
-        console.log(`world: handleClickRelease: ${x}, ${y}`)
         if (this.inDrag) {
             this.inDrag = false;
         }
@@ -429,9 +438,9 @@ export class CWorld {
 
     }
 
-    private initConnectionData(maxConnections: number) {
+    private initConnectionData(numConnections: number) {
         let gl = this.gl
-        this.connectionData = new Float32Array(maxConnections * CONNECTION_TRANSFORM_SIZE);
+        this.connectionData = new Float32Array(numConnections * CONNECTION_TRANSFORM_SIZE);
         this.connectionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.connectionBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.connectionData, gl.STATIC_DRAW);
@@ -458,6 +467,27 @@ export class CWorld {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.connectionBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.connectionData, gl.STATIC_DRAW);
         return node.numConnections;
+    }
+
+    private setGlobalsConnectionData() {
+        let gl = this.gl;
+        let n: number = 0;
+        for (let node of this.nodes) {
+            for (let index of node.inode.connections) {
+                let connection: CNode = this.nodes[index];
+                if (connection.inode.ignore) continue;
+                this.connectionData.set(this.isTiny ? COLOR_BLACK : connection.getCurrentColor(this.colorMode), n);
+                this.connectionData.set(node.position, n+4);
+                let delta: vec3 = vec3.create();
+                let connPosition: vec3 = connection.getConnectionPosition();
+                vec3.sub(delta, connPosition, node.position);
+                this.connectionData.set(delta, n+8);
+                n += 12;
+            }
+        }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.connectionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.connectionData, gl.STATIC_DRAW);
     }
 
     private updateSingleNodeData() {
@@ -662,7 +692,7 @@ export class CWorld {
         this.connectionVao = gl.createVertexArray();
         gl.bindVertexArray(this.connectionVao);
 
-        this.initConnectionData(this.maxConnections);
+        this.initConnectionData(this.isTiny ? this.numConnections: this.maxConnections);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.connectionBuffer);
         gl.enableVertexAttribArray(colorLoc);
         gl.vertexAttribPointer(colorLoc, 4, gl.FLOAT, false, CONNECTION_TRANSFORM_SIZE*4, 0);
@@ -678,6 +708,9 @@ export class CWorld {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.lineGeometry);
         gl.enableVertexAttribArray(positionLoc);
         gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 12, 0);
+        if (this.isTiny) {
+            this.setGlobalsConnectionData();
+        }
     }
 
     public async initTexturesGl() {
@@ -704,6 +737,7 @@ export class CWorld {
     }
 
     private updateStats(inode: INode) {
+        this.numConnections += inode.connections.length;
         if (inode.connections.length > this.maxConnections) {
             this.maxConnections = inode.connections.length;
         }
@@ -813,38 +847,13 @@ export class CWorld {
         }
         console.log('nodeMap length ', nodeMap.size);
     }
-
-    private filter(filter: String) {
-        if (!filter) return;
-        console.log('filter: ', filter);
-        for (let inode of this.istate.nodes) {
-            if (inode.network_type.toLowerCase() != filter) {
-                inode.ignore = true;
-            } else {
-                inode.ignore = false;
-            }
-        }
-        for (let inode of this.istate.nodes) {
-            if (!inode.ignore) {
-                // console.log('ignore type: ',inode.network_type)
-                let newConnections = new Array();
-                for (let index of inode.connections) {
-                    let connection = this.istate.nodes[index];
-                    if (!connection.ignore) {
-                        newConnections.push(index);
-                    }
-                }
-                inode.connections = newConnections
-            }
-        }
-    }
-
-    public async initialize(filter: String) {
+ 
+    public async initialize() {
         console.log('world::initialize, num nodes: ' + this.istate.nodes.length);
         let gl = this.gl;
         let id = 0;
-        this.filter(filter);
         this.assignSubNodes(this.istate.nodes);
+        this.isTiny = this.istate.nodes.length < TINY_GRAPH_NODES;
         for (let inode of this.istate.nodes) {
             if (inode.ignore) {
                 let node = new CNode(inode, id, 0, this.camera, ENodeType.Hide, null);
@@ -852,14 +861,14 @@ export class CWorld {
                 id++;
                 continue;
             }
-            // if filtering is on, we do not create any supernodes or subnodes.
+            // if we're working with a small graph, we do not create any supernodes or subnodes.
             // All nodes are therefore a single node.
-            if (inode.subnode_index == 0 || filter) {
-                if (inode.num_subnodes > 1 && !filter) {
+            if (inode.subnode_index == 0 || this.isTiny) {
+                if (inode.num_subnodes > 1 && !this.isTiny) {
                     // new super node
                     let superNode = new CNode(inode, this.istate.nodes.length+this.superNodes.length, this.superNodes.length, this.camera, ENodeType.Super, null);
                     // make super nodes magenta
-                    superNode.degreeColor = vec4.fromValues(0.9, 0.0, 0.9, 1.0);
+                    superNode.degreeColor = COLOR_MAGENTA;
 
                     this.superMap.set(inode.geostr,superNode);
                     this.superNodes.push(superNode);
@@ -950,7 +959,7 @@ export class CWorld {
         gl.useProgram(glShaders[EShader.Connection]);
         gl.uniformMatrix4fv(this.connectionVPLoc, false, this.camera.matViewProjection);
         gl.bindVertexArray(this.connectionVao);
-        gl.drawArraysInstanced(gl.LINES, 0, 2, this.numConnectionsToDraw);
+        gl.drawArraysInstanced(gl.LINES, 0, 2, this.isTiny ? this.numConnections : this.numConnectionsToDraw);
     }
 
     renderNodes() {
@@ -978,7 +987,7 @@ export class CWorld {
         let elapsed = this.startTime - Date.now()
         this.params[0] = elapsed / 1000.0;
         this.renderWorldMap()
-        if (this.drawConnections && this.connectionMode) {
+        if ((this.drawConnections || this.isTiny) && this.connectionMode) {
             this.renderConnections()
         }
         this.renderNodes()

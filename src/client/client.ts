@@ -5,16 +5,11 @@ let app : CApp;
 
 var loadgeo = document.getElementById("loadgeo");
 if (loadgeo) loadgeo.addEventListener("click", loadGeoState, false);
-var defaultgeo = document.getElementById("defaultgeo");
-if (defaultgeo) defaultgeo.addEventListener("click", loadDefaultState, false);
+var demou = document.getElementById("demou");
+if (demou) demou.addEventListener("click", loadDemoUnfiltered, false);
+var demof = document.getElementById("demof");
+if (demof) demof.addEventListener("click", loadDemoFiltered, false);
 
-
-function getFilter() : String {
-    let filterElement: HTMLInputElement = document.getElementById("filter") as HTMLInputElement;
-    let filter = filterElement.value;
-    console.log("filter: ", filter);
-    return filter;
-}
 
 async function loadGeoState() {
     let fileHandle: FileSystemFileHandle;
@@ -39,17 +34,27 @@ async function loadGeoState() {
     document.getElementById("gradient").style.visibility = 'visible';
     window.addEventListener('resize', onWindowResize, false);
 
-    app = new CApp(document.querySelector("#bancan"), fileHandle, getFilter())
+    app = new CApp(document.querySelector("#bancan"), fileHandle, false)
 }
 
-async function loadDefaultState() {
+async function loadDemoUnfiltered() {
     document.getElementById("clickdiv").style.display = "none";
     document.getElementById("instructions").style.visibility = 'visible';
     document.getElementById("overlayLeft").style.visibility = 'visible';
     document.getElementById("gradient").style.visibility = 'visible';
     window.addEventListener('resize', onWindowResize, false);
 
-    app = new CApp(document.querySelector("#bancan"), null, getFilter())
+    app = new CApp(document.querySelector("#bancan"), null, false)
+}
+
+async function loadDemoFiltered() {
+    document.getElementById("clickdiv").style.display = "none";
+    document.getElementById("instructions").style.visibility = 'visible';
+    document.getElementById("overlayLeft").style.visibility = 'visible';
+    document.getElementById("gradient").style.visibility = 'visible';
+    window.addEventListener('resize', onWindowResize, false);
+
+    app = new CApp(document.querySelector("#bancan"), null, true)
 }
 
 
