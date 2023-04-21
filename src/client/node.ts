@@ -6,7 +6,6 @@ import { idToColor } from './util'
 import { PCamera } from './camera'
 
 
-const SUBNODE_ABSTAND: number = 2;
 const COLOR_BLACK: vec4 = vec4.fromValues(0.2, 0.2, 0.2, 1.0);
 
 export class CNode {
@@ -32,6 +31,7 @@ export class CNode {
     public superNode: CNode;
     public subNodes: CNode [];
     public isOpenedSuper: boolean;
+    private abstand: number;
 
     public getConnectionPosition() {
         if (this.nodeType == ENodeType.Single) {
@@ -112,7 +112,7 @@ export class CNode {
         )
     }
 
-    public constructor(inode: INode, id: number, index: number, camera: PCamera, nodeType: ENodeType, superNode: CNode) {
+    public constructor(inode: INode, id: number, index: number, camera: PCamera, nodeType: ENodeType, superNode: CNode, abstand: number) {
         this.inode = inode;
         this.id = id;
         this.index = index;
@@ -123,6 +123,7 @@ export class CNode {
         this.superNode = superNode;
         this.subNodes = new Array();
         this.isOpenedSuper = false;
+        this.abstand = abstand;
 
         this.metadata = vec4.create();
         this.idColor = idToColor(id);
@@ -165,14 +166,14 @@ export class CNode {
         let remain = index - z*edge*edge;
         const y = Math.floor(remain/edge)
         const x = remain % edge;
-        const width = SUBNODE_ABSTAND*(edge-1);
+        const width = this.abstand*(edge-1);
         const offsetX = -width/2;
         const offsetY = -width/2;
-        const offsetZ = SUBNODE_ABSTAND;
+        const offsetZ = this.abstand;
         this.subnodeOffset = vec3.fromValues(
-            offsetX+SUBNODE_ABSTAND*x,
-            offsetY+SUBNODE_ABSTAND*y,
-            offsetZ+SUBNODE_ABSTAND*z*1.5);
+            offsetX+this.abstand*x,
+            offsetY+this.abstand*y,
+            offsetZ+this.abstand*z*1.5);
     }
 
     public updateMatrix() {
