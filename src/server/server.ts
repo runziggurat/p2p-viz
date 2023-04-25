@@ -23,8 +23,8 @@ class App {
 
         if (useSsl) {
             const options = {
-                key: fs.readFileSync('./config/key.pem'),
-                cert: fs.readFileSync('./config/cert.pem')
+                key: fs.readFileSync('./config/key.local.pem'),
+                cert: fs.readFileSync('./config/cert.local.pem')
             };
             this.server = https.createServer(options, app);
         } else {
