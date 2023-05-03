@@ -820,8 +820,6 @@ export class CWorld {
         let nodeMap: Map<string, INode []> = new Map();
 
         for (let inode of nodes) {
-            // remove port number from addr string.
-            inode.addr = inode.addr.substring(0, inode.addr.indexOf(':'));
             if (!inode.geolocation) {
                 nogeo++;
                 // console.log(`no geo location: ${nogeo}`, inode);
