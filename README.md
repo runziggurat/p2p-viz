@@ -1,3 +1,6 @@
+> This repository is now archived and is no longer updated. The latest code now lives at [ziggurat-viz](https://github.com/runziggurat/ziggurat-viz).
+
+
 # p2p-viz : a P2P Network Visualizer
 
 `p2p-viz` is a web app which graphically displays the state of a P2P network.  The data used is based on crawler results -- nominally, an adjacency graph with socket addresses.
